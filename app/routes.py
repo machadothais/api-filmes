@@ -18,7 +18,7 @@ def obter_filme(filme_id: int, db: Session = Depends(database.get_db)):
 
 @router.post("/filmes", response_model=schemas.Filme)
 def criar_filme(filme: schemas.FilmeCreate, db: Session = Depends(database.get_db)):
-    return crud.create_filme(db, filme)
+    return crud.criar_filme(db, filme)
 
 @router.put("/filmes/{filme_id}", response_model=schemas.Filme)
 def atualizar_filme(filme_id: int, filme: schemas.FilmeUpdate, db: Session = Depends(database.get_db)):

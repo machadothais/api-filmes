@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from . import crud, schemas, database
+from . import crud, schemas, database, models
 
 router = APIRouter()
 
@@ -16,9 +16,18 @@ def obter_filme(filme_id: int, db: Session = Depends(database.get_db)):
         raise HTTPException(status_code=404, detail="Filme não encontrado")
     return filme
 
-@router.post("/filmes", response_model=schemas.Filme)
-def criar_filme(filme: schemas.FilmeCreate, db: Session = Depends(database.get_db)):
-    return crud.create_filme(db, filme)
+def criar_filme(db: Session, filme: schemas.FilmeCreate):
+    novo_filme = models.Filme(**filme.dict())
+    db.add(novo_filme)
+    db.commit()
+    db.refresh(novo_filme)
+    return novo_filme
+
+def get_filmes(db: Session):
+    return db.query(models.Filme).all()
+
+def get_filme(db: Session, filme_id: int):
+    return db.query(models.Filme).filter(models.Filme.id == filme_id).first()
 
 @router.put("/filmes/{filme_id}", response_model=schemas.Filme)
 def atualizar_filme(filme_id: int, filme: schemas.FilmeUpdate, db: Session = Depends(database.get_db)):
